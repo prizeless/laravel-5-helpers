@@ -3,7 +3,9 @@
   "type": "library",
   "description": "Group of common and easy to use base classes for a Laravel 5.1 project",
   "keywords": [
-    "helpers, laravel, laravel5"
+    "helpers",
+    "laravel5",
+    "laravel"
   ],
   "homepage": "http://prizeless.net",
   "license": "MIT",
