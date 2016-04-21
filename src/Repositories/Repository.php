@@ -34,15 +34,14 @@ abstract class Repository
     /**
      * @param Definition $definition
      * @param $resourceId
-     * @param $userId
      * @return mixed
      * @throws NotFoundException
      * @throws ResourceSaveError
      */
-    public function editResource(Definition $definition, $resourceId, $userId)
+    public function editResource(Definition $definition, $resourceId)
     {
         try {
-            return $this->editModel($definition, $resourceId, $userId);
+            return $this->editModel($definition, $resourceId);
         } catch (\PDOException $exception) {
             throw new NotFoundException($this->getModelShortName());
         } catch (QueryException $exception) {
@@ -56,13 +55,12 @@ abstract class Repository
 
     /**
      * @param $resourceId
-     * @param $userId
      * @throws NotFoundException
      */
-    public function deleteResource($resourceId, $userId)
+    public function deleteResource($resourceId)
     {
         try {
-            $collection = $this->getCollectionById($resourceId, $userId);
+            $collection = $this->getCollectionById($resourceId);
             return $collection->delete();
         } catch (\PDOException $exception) {
             throw new NotFoundException($this->getModelShortName());
@@ -76,15 +74,14 @@ abstract class Repository
     /**
      * @param Definition $definition
      * @param $resourceId
-     * @param $userId
      * @return mixed
      * @throws NotFoundException
      * @throws ValidationError
      */
-    private function editModel(Definition $definition, $resourceId, $userId)
+    private function editModel(Definition $definition, $resourceId)
     {
         $definition->validate();
-        $collection = $this->getCollectionById($resourceId, $userId);
+        $collection = $this->getCollectionById($resourceId);
 
         $fields = $definition->valuesToArray();
         foreach ($fields as $column => $value) {
@@ -111,19 +108,12 @@ abstract class Repository
 
     /**
      * @param $id
-     * @param $userId
      * @throws NotFoundException
      */
-    public function getResource($id, $userId)
+    public function getResource($id)
     {
         try {
-            $result = $this->getModel()->idOrUuId($id);
-
-            if ($result->user_id !== $userId) {
-                throw  new NotFoundException($this->getModelShortName());
-            }
-
-            return $result;
+            return $this->getModel()->idOrUuId($id);
         } catch (QueryException $exception) {
             throw new NotFoundException($this->getModelShortName());
         } catch (\PDOException $exception) {
@@ -171,17 +161,13 @@ abstract class Repository
 
     /**
      * @param $resourceId
-     * @param $userId
      * @return mixed
      * @throws NotFoundException
      */
-    private function getCollectionById($resourceId, $userId)
+    private function getCollectionById($resourceId)
     {
         $collection = $this->getModel()->idOrUuId($resourceId);
 
-        if ($collection->user_id !== $userId) {
-            throw new NotFoundException($this->getModelShortName());
-        }
         return $collection;
     }
 
