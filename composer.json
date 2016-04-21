@@ -1,0 +1,37 @@
+{
+  "name": "prizeless/laravel-5-helpers",
+  "type": "library",
+  "description": "Group of common and easy to use base classes for a Laravel 5.1 project",
+  "keywords": [
+    "helpers, laravel, laravel5"
+  ],
+  "homepage": "http://prizeless.net",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Antony Masocha",
+      "email": "developer@prizeless.net",
+      "homepage": "http://antony.prizeless.co.zw"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=5.5.9",
+    "ramsey/uuid": "^3.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.0",
+    "mockery/mockery": "*",
+    "laravel/framework": "5.1.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Laravel5Helpers\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Laravel5HelpersTest\\": "tests/"
+    }
+  }
+}
