@@ -1,5 +1,9 @@
 Laravel Helpers
 ============================
+
+composer require prizeless/laravel-5-helpers "dev-master"
+
+
 This package contains base classes to enable easy database CRUD.
 If you are going to extend the UuidModel you must add a uuid column to your database table.
 
