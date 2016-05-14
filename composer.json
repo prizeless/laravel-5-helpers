@@ -16,7 +16,6 @@
       "homepage": "http://antony.prizeless.co.zw"
     }
   ],
-  "minimum-stability": "dev",
   "require": {
     "php": ">=5.5.9",
     "ramsey/uuid": "^3.1"
