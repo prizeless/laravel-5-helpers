@@ -3,7 +3,7 @@
 namespace Laravel5Helpers;
 
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use App\Http\Requests\Request;
 
 abstract class ApiTypeRequest extends Request
 {
