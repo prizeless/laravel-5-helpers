@@ -73,9 +73,7 @@ abstract class Definition
 
     private function assignValue($attribute, &$values)
     {
-        if (empty($this->{$attribute}) === false) {
-            $values[$attribute] = $this->{$attribute};
-        }
+        $values[$attribute] = $this->{$attribute};
     }
 
     public function getValidators()
