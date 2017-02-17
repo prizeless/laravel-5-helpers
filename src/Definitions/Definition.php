@@ -18,9 +18,7 @@ abstract class Definition
     private function setAttributes($attributes)
     {
         foreach ($attributes as $name => $value) {
-            if (empty($value) === false) {
-                $this->{$name} = $value;
-            }
+            $this->{$name} = $value;
         }
     }
 
