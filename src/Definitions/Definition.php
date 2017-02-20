@@ -2,7 +2,7 @@
 
 namespace Laravel5Helpers\Definitions;
 
-use  Laravel5Helpers\Exceptions\ValidationError;
+use Laravel5Helpers\Exceptions\ValidationError;
 use Illuminate\Support\Facades\Validator;
 
 abstract class Definition

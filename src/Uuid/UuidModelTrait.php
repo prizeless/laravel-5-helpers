@@ -52,14 +52,15 @@ trait UuidModelTrait
             throw (new ModelNotFoundException)->setModel(get_class($this));
         }
 
-        if (preg_match('/^([0-9]+|[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/', $idOrUuid) !== 1) {
+        if (!is_string($idOrUuid) && !is_numeric($idOrUuid)) {
             throw (new ModelNotFoundException)->setModel(get_class($this));
         }
 
-        $search = $query->where(function ($query) use ($idOrUuid) {
-            $query->where('id', $idOrUuid)
-                ->orWhere('uuid', $idOrUuid);
-        });
+        if (preg_match('/^([0-9]+|[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/', $idOrUuid)) {
+            $search = $query->where('uuid', $idOrUuid);
+        } else {
+            $search = $query->where('id', $idOrUuid);
+        }
 
         return $first ? $search->firstOrFail() : $search;
     }
