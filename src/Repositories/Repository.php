@@ -13,6 +13,8 @@ abstract class Repository
 {
     protected $model;
 
+    protected $relations = [];
+
     /**
      * @param Definition $definition
      * @return mixed
@@ -55,12 +57,15 @@ abstract class Repository
 
     /**
      * @param $resourceId
+     * @return mixed
      * @throws NotFoundException
      */
     public function deleteResource($resourceId)
     {
         try {
             $collection = $this->getCollectionById($resourceId);
+            $this->deleteRelatedRecords($collection);
+
             return $collection->delete();
         } catch (\PDOException $exception) {
             throw new NotFoundException($this->getModelShortName());
@@ -68,6 +73,38 @@ abstract class Repository
             throw new NotFoundException($this->getModelShortName());
         } catch (ModelNotFoundException $exception) {
             throw new NotFoundException($this->getModelShortName());
+        }
+    }
+
+    private function deleteRecord($record)
+    {
+        if ($record->count() > 0) {
+            $record->delete();
+        }
+    }
+
+    /**
+     * Delete all child relations like a BOSS
+     * @param $resource
+     */
+    private function deleteRelatedRecords($resource)
+    {
+        if (empty($this->relations) === false) {
+            foreach ($this->relations as $relation) {
+                $this->tryDeleteRelations($resource, $relation);
+            }
+        }
+    }
+
+    private function tryDeleteRelations($resource, $relation)
+    {
+        $collection = '\Illuminate\Database\Eloquent\Collection';
+        if ($resource->{$relation} instanceof $collection) {
+            foreach ($resource->{$relation} as $record) {
+                $this->deleteRecord($record);
+            }
+        } else {
+            $this->deleteRecord($resource->{$relation});
         }
     }
 
