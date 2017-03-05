@@ -3,7 +3,9 @@
 namespace Laravel5Helpers\Repositories;
 
 use Laravel5Helpers\Exceptions\NotFoundException;
+use Laravel5Helpers\Exceptions\ResourceDeleteError;
 use Laravel5Helpers\Exceptions\ResourceSaveError;
+use Laravel5Helpers\Exceptions\ResourceUpdateError;
 use Laravel5Helpers\Exceptions\ValidationError;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
@@ -28,28 +30,25 @@ abstract class Repository
             throw new ResourceSaveError;
         } catch (\PDOException $exception) {
             throw new ResourceSaveError;
-        } catch (ValidationError $exception) {
-            throw new ResourceSaveError($exception->getMessage());
         }
     }
+
 
     /**
      * @param Definition $definition
      * @param $resourceId
      * @return mixed
      * @throws NotFoundException
-     * @throws ResourceSaveError
+     * @throws ResourceUpdateError
      */
     public function editResource(Definition $definition, $resourceId)
     {
         try {
             return $this->editModel($definition, $resourceId);
         } catch (\PDOException $exception) {
-            throw new NotFoundException($this->getModelShortName());
+            throw new ResourceUpdateError($this->getModelShortName());
         } catch (QueryException $exception) {
-            throw new NotFoundException($this->getModelShortName());
-        } catch (ValidationError $exception) {
-            throw new NotFoundException($this->getModelShortName());
+            throw new ResourceUpdateError($this->getModelShortName());
         } catch (ModelNotFoundException $exception) {
             throw new NotFoundException($this->getModelShortName());
         }
@@ -59,6 +58,7 @@ abstract class Repository
      * @param $resourceId
      * @return mixed
      * @throws NotFoundException
+     * @throws ResourceDeleteError
      */
     public function deleteResource($resourceId)
     {
@@ -68,9 +68,9 @@ abstract class Repository
 
             return $collection->delete();
         } catch (\PDOException $exception) {
-            throw new NotFoundException($this->getModelShortName());
+            throw new ResourceDeleteError($this->getModelShortName());
         } catch (QueryException $exception) {
-            throw new NotFoundException($this->getModelShortName());
+            throw new ResourceDeleteError($this->getModelShortName());
         } catch (ModelNotFoundException $exception) {
             throw new NotFoundException($this->getModelShortName());
         }
@@ -191,6 +191,7 @@ abstract class Repository
         foreach ($fields as $column => $value) {
             $model->{$column} = $value;
         }
+        
         $model->save();
 
         return $model;
@@ -203,9 +204,7 @@ abstract class Repository
      */
     private function getCollectionById($resourceId)
     {
-        $collection = $this->getModel()->idOrUuId($resourceId);
-
-        return $collection;
+        return $this->getModel()->idOrUuId($resourceId);
     }
 
     private function getModelShortName()
