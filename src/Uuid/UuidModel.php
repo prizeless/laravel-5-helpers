@@ -9,4 +9,14 @@ class UuidModel extends Model
     use UuidModelTrait;
 
     protected $hidden = ['id'];
+
+    public function scopeLike($query, $field, $value)
+    {
+        return $query->where($field, 'LIKE', "%$value%");
+    }
+
+    public function scopeORWhereWildCard($query, $field, $value)
+    {
+        return $query->orWhere($field, 'LIKE', "%$value%");
+    }
 }

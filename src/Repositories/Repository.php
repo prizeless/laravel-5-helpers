@@ -207,7 +207,7 @@ abstract class Repository
         return $this->getModel()->idOrUuId($resourceId);
     }
 
-    private function getModelShortName()
+    protected function getModelShortName()
     {
         return (new \ReflectionClass($this->getModel()))->getShortName();
     }
