@@ -197,6 +197,24 @@ abstract class Repository
         return $model;
     }
 
+    protected function getRelations()
+    {
+        if (empty($this->relations) === false) {
+            return $this->getModel()->with($this->relations);
+        }
+
+        return $this->getModel();
+    }
+
+    public function addRelations(array  $relations)
+    {
+        if (empty($relations) === false) {
+            $this->relations = $relations;
+        }
+
+        return $this;
+    }
+
     /**
      * @param $resourceId
      * @return mixed
