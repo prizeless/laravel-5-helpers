@@ -17,6 +17,8 @@ abstract class Repository
 
     protected $relations = [];
 
+    protected $pageSize = 15;
+
     /**
      * @param Definition $definition
      * @return mixed
@@ -191,7 +193,7 @@ abstract class Repository
         foreach ($fields as $column => $value) {
             $model->{$column} = $value;
         }
-        
+
         $model->save();
 
         return $model;
@@ -206,7 +208,7 @@ abstract class Repository
         return $this->getModel();
     }
 
-    public function addRelations(array  $relations)
+    public function addRelations(array $relations)
     {
         if (empty($relations) === false) {
             $this->relations = $relations;
