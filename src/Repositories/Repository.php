@@ -10,6 +10,7 @@ use Laravel5Helpers\Exceptions\ValidationError;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Laravel5Helpers\Definitions\Definition;
+use const null;
 
 abstract class Repository
 {
@@ -18,6 +19,12 @@ abstract class Repository
     protected $relations = [];
 
     protected $pageSize = 15;
+
+    protected $order = null;
+
+    const ORDER_ASC = 'ASC';
+
+    const ORDER_DESC = 'DESC';
 
     /**
      * @param Definition $definition
@@ -230,5 +237,12 @@ abstract class Repository
     protected function getModelShortName()
     {
         return (new \ReflectionClass($this->getModel()))->getShortName();
+    }
+
+    public function setResultOrder($field, $direction = self::ORDER_ASC)
+    {
+        $this->order = $field . ' ' . $direction;
+
+        return $this;
     }
 }
