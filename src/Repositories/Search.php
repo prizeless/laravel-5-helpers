@@ -48,7 +48,7 @@ abstract class Search extends Repository
             });
 
             if (empty($this->order) === false) {
-                return $query->orderBy($this->order)->paginate($this->pageSize);
+                return $query->orderBy($this->order->field, $this->order->direction)->paginate($this->pageSize);
             }
 
             return $query->paginate($this->pageSize);
@@ -74,10 +74,11 @@ abstract class Search extends Repository
                     $query = $query->orWhereWildCard($column, $value);
                 }
             });
+
             if (empty($this->order) === false) {
-                return $query->orderBy($this->order)->paginate($this->pageSize);
+                return $query->orderBy($this->order->field, $this->order->direction)->paginate($this->pageSize);
             }
-            
+
             return $query->paginate($this->pageSize);
         } catch (\PDOException $exception) {
             throw new ResourceGetError($this->getModelShortName());

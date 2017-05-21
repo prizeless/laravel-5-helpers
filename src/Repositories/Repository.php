@@ -2,6 +2,7 @@
 
 namespace Laravel5Helpers\Repositories;
 
+use Laravel5Helpers\Definitions\ResultOrder;
 use Laravel5Helpers\Exceptions\NotFoundException;
 use Laravel5Helpers\Exceptions\ResourceDeleteError;
 use Laravel5Helpers\Exceptions\ResourceSaveError;
@@ -241,7 +242,7 @@ abstract class Repository
 
     public function setResultOrder($field, $direction = self::ORDER_ASC)
     {
-        $this->order = $field . ' ' . $direction;
+        $this->order = new ResultOrder($field, $direction);
 
         return $this;
     }
