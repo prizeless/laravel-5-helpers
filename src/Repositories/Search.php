@@ -91,7 +91,7 @@ abstract class Search extends Repository
                         if (is_array($relation->value) === true) {
                             $query->whereIn($relation->column, $relation->value);
                         } else {
-                            $query->where($relation->column, $relation->value);
+                            $query->like($relation->column, $relation->value);
                         }
                     });
                 }
@@ -111,7 +111,7 @@ abstract class Search extends Repository
                         if (is_array($relation->value) === true) {
                             $query->orWhereIn($relation->column, $relation->value);
                         } else {
-                            $query->orWhere($relation->column, $relation->value);
+                            $query->orWhereWildCard($relation->column, $relation->value);
                         }
                     });
                 }
