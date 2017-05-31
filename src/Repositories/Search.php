@@ -110,12 +110,12 @@ abstract class Search extends Repository
     private function searchOrRelations(&$query)
     {
         if (empty($this->searchRelations) === false) {
-            $query = $query->where(function ($query) {
+            $query = $query->orWhere(function ($query) {
                 /**
                  * @var  $relation RelationSearch
                  */
                 foreach ($this->searchRelations as $relation) {
-                    $query = $query->whereHas($relation->relation, function ($query) use ($relation) {
+                    $query = $query->orWhereHas($relation->relation, function ($query) use ($relation) {
                         if (is_array($relation->value) === true) {
                             $query->orWhereIn($relation->column, $relation->value);
                         } else {
