@@ -52,9 +52,9 @@ abstract class Search extends Repository
             }
 
             return $query->paginate($this->pageSize);
-        } catch (\PDOExcedption $exception) {
+        } catch (\PDOException $exception) {
             throw new ResourceGetError($this->getModelShortName());
-        } catch (QueryExcdeption $exception) {
+        } catch (QueryException $exception) {
             throw new ResourceGetError($this->getModelShortName());
         }
     }

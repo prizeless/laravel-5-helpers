@@ -47,7 +47,13 @@ abstract class Repository
     public function getPaginated()
     {
         try {
-            return $this->getModel()->paginate($this->pageSize);
+            $query = $this->getModel();
+
+            if (empty($this->order) === false) {
+                return $query->orderBy($this->order->field, $this->order->direction)->paginate($this->pageSize);
+            }
+
+            $query->paginate($this->pageSize);
         } catch (QueryException $exception) {
             throw new ResourceGetError($this->getModelShortName());
         } catch (\PDOException $exception) {
