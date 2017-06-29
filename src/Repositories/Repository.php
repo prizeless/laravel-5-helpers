@@ -53,7 +53,7 @@ abstract class Repository
                 return $query->orderBy($this->order->field, $this->order->direction)->paginate($this->pageSize);
             }
 
-            $query->paginate($this->pageSize);
+            return $query->paginate($this->pageSize);
         } catch (QueryException $exception) {
             throw new ResourceGetError($this->getModelShortName());
         } catch (\PDOException $exception) {
