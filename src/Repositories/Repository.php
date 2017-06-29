@@ -5,6 +5,7 @@ namespace Laravel5Helpers\Repositories;
 use Laravel5Helpers\Definitions\ResultOrder;
 use Laravel5Helpers\Exceptions\NotFoundException;
 use Laravel5Helpers\Exceptions\ResourceDeleteError;
+use Laravel5Helpers\Exceptions\ResourceGetError;
 use Laravel5Helpers\Exceptions\ResourceSaveError;
 use Laravel5Helpers\Exceptions\ResourceUpdateError;
 use Laravel5Helpers\Exceptions\ValidationError;
@@ -40,6 +41,17 @@ abstract class Repository
             throw new ResourceSaveError;
         } catch (\PDOException $exception) {
             throw new ResourceSaveError;
+        }
+    }
+
+    public function getPaginated()
+    {
+        try {
+            return $this->getModel()->paginate($this->pageSize);
+        } catch (QueryException $exception) {
+            throw new ResourceGetError($this->getModelShortName());
+        } catch (\PDOException $exception) {
+            throw new ResourceGetError($this->getModelShortName());
         }
     }
 
