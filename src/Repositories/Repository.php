@@ -193,7 +193,11 @@ abstract class Repository
      */
     protected function findByAttributes(array $attributes)
     {
-        $result = $this->getModel()->where($attributes)->first();
+        $model = $this->getModel();
+        foreach ($attributes as $column => $value) {
+            $model = $model->where($column, $value);
+        }
+        $result = $model->first();
 
         if (empty($result)) {
             throw new NotFoundException($this->getModelShortName());
