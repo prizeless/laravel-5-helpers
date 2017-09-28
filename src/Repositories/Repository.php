@@ -30,6 +30,7 @@ abstract class Repository
 
     /**
      * @param Definition $definition
+     *
      * @return mixed
      * @throws ResourceSaveError
      */
@@ -65,6 +66,7 @@ abstract class Repository
     /**
      * @param Definition $definition
      * @param $resourceId
+     *
      * @return mixed
      * @throws NotFoundException
      * @throws ResourceUpdateError
@@ -84,6 +86,7 @@ abstract class Repository
 
     /**
      * @param $resourceId
+     *
      * @return mixed
      * @throws NotFoundException
      * @throws ResourceDeleteError
@@ -106,13 +109,14 @@ abstract class Repository
 
     private function deleteRecord($record)
     {
-        if ($record->count() > 0) {
+        if (empty($record) === false && $record->count() > 0) {
             $record->delete();
         }
     }
 
     /**
      * Delete all child relations like a BOSS
+     *
      * @param $resource
      */
     private function deleteRelatedRecords($resource)
@@ -139,6 +143,7 @@ abstract class Repository
     /**
      * @param Definition $definition
      * @param $resourceId
+     *
      * @return mixed
      * @throws NotFoundException
      * @throws ValidationError
@@ -159,6 +164,7 @@ abstract class Repository
 
     /**
      * @param $id
+     *
      * @return mixed
      * @throws NotFoundException
      */
@@ -173,6 +179,7 @@ abstract class Repository
 
     /**
      * @param $id
+     *
      * @throws NotFoundException
      */
     public function getResource($id)
@@ -188,6 +195,7 @@ abstract class Repository
 
     /**
      * @param array $attributes
+     *
      * @return mixed
      * @throws NotFoundException
      */
@@ -210,6 +218,7 @@ abstract class Repository
 
     /**
      * @param Definition $definition
+     *
      * @return mixed
      * @throws ValidationError
      */
@@ -218,7 +227,7 @@ abstract class Repository
         $definition->validate();
 
         $fields = $definition->valuesToArray();
-        $model = $this->getModel();
+        $model  = $this->getModel();
 
         foreach ($fields as $column => $value) {
             $model->{$column} = $value;
@@ -249,6 +258,7 @@ abstract class Repository
 
     /**
      * @param $resourceId
+     *
      * @return mixed
      * @throws NotFoundException
      */
