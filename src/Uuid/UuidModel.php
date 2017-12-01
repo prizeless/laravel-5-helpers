@@ -19,4 +19,9 @@ class UuidModel extends Model
     {
         return $query->orWhere($field, 'LIKE', "%$value%");
     }
+
+    public function scopeWhereWildCard($query, $field, $value)
+    {
+        return $query->where($field, 'LIKE', "%$value%");
+    }
 }
