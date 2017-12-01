@@ -117,9 +117,9 @@ abstract class Search extends Repository
                 foreach ($this->searchRelations as $relation) {
                     $query = $query->orWhereHas($relation->relation, function ($query) use ($relation) {
                         if (is_array($relation->value) === true) {
-                            $query->orWhereIn($relation->column, $relation->value);
+                            $query->whereIn($relation->column, $relation->value);
                         } else {
-                            $query->orWhereWildCard($relation->column, $relation->value);
+                            $query->whereWildCard($relation->column, $relation->value);
                         }
                     });
                 }
@@ -139,7 +139,7 @@ abstract class Search extends Repository
         if (empty($this->startDate) === false && empty($this->endDate) === false) {
             $query->where(function ($query) use ($searchType) {
                 $query->{$searchType}($this->startDateField, '>=', $this->startDate)
-                    ->{$searchType}($this->endDateField, '<=', $this->endDate);
+                      ->{$searchType}($this->endDateField, '<=', $this->endDate);
             });
         }
 
@@ -179,7 +179,7 @@ abstract class Search extends Repository
     public function setStartDate($date)
     {
         if (empty($date) == false) {
-            $timestamp = strtotime($date);
+            $timestamp       = strtotime($date);
             $this->startDate = Carbon::createFromTimestamp($timestamp)->toDateString();
         }
 
@@ -189,7 +189,7 @@ abstract class Search extends Repository
     public function setEndDate($date)
     {
         if (empty($date) == false) {
-            $timestamp = strtotime($date);
+            $timestamp     = strtotime($date);
             $this->endDate = Carbon::createFromTimestamp($timestamp)->toDateString();
         }
 
