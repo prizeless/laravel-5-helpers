@@ -2,10 +2,10 @@
 
 namespace Laravel5Helpers;
 
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
-use App\Http\Requests\Request;
 
-abstract class ApiTypeRequest extends Request
+abstract class ApiTypeRequest extends FormRequest
 {
     public function response(array $errors)
     {
