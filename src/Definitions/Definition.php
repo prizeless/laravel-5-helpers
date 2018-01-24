@@ -18,7 +18,9 @@ abstract class Definition
     private function setAttributes($attributes)
     {
         foreach ($attributes as $name => $value) {
-            $this->{$name} = $value;
+            if (property_exists($this, $name)) {
+                $this->{$name} = $value;
+            }
         }
     }
 
@@ -44,7 +46,7 @@ abstract class Definition
     public function getAttributes()
     {
         $reflect = new \ReflectionClass($this);
-        $props = $reflect->getProperties(\ReflectionProperty::IS_PUBLIC);
+        $props   = $reflect->getProperties(\ReflectionProperty::IS_PUBLIC);
 
         $properties = [];
 
@@ -61,7 +63,7 @@ abstract class Definition
     public function valuesToArray()
     {
         $attributes = $this->getAttributes();
-        $values = [];
+        $values     = [];
         foreach ($attributes as $attribute => $defaults) {
             $this->assignValue($attribute, $values);
         }
