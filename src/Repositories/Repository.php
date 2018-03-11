@@ -45,6 +45,10 @@ abstract class Repository
         }
     }
 
+    /**
+     * @return mixed
+     * @throws ResourceGetError
+     */
     public function getPaginated()
     {
         try {
@@ -107,6 +111,9 @@ abstract class Repository
         }
     }
 
+    /**
+     * @param $record
+     */
     private function deleteRecord($record)
     {
         if (empty($record) === false && $record->count() > 0) {
@@ -140,14 +147,6 @@ abstract class Repository
         }
     }
 
-    /**
-     * @param Definition $definition
-     * @param $resourceId
-     *
-     * @return mixed
-     * @throws NotFoundException
-     * @throws ValidationError
-     */
     private function editModel(Definition $definition, $resourceId)
     {
         $definition->validate();
@@ -162,12 +161,6 @@ abstract class Repository
         return $collection;
     }
 
-    /**
-     * @param $id
-     *
-     * @return mixed
-     * @throws NotFoundException
-     */
     public function mustExist($id)
     {
         try {
@@ -177,11 +170,6 @@ abstract class Repository
         }
     }
 
-    /**
-     * @param $id
-     *
-     * @throws NotFoundException
-     */
     public function getResource($id)
     {
         try {
@@ -193,12 +181,6 @@ abstract class Repository
         }
     }
 
-    /**
-     * @param array $attributes
-     *
-     * @return mixed
-     * @throws NotFoundException
-     */
     protected function findByAttributes(array $attributes)
     {
         $model = $this->getModel();
@@ -216,12 +198,11 @@ abstract class Repository
 
     abstract protected function getModel();
 
-    /**
-     * @param Definition $definition
-     *
-     * @return mixed
-     * @throws ValidationError
-     */
+    public function setModel($model)
+    {
+        $this->model = $model;
+    }
+
     private function saveModel(Definition $definition)
     {
         $definition->validate();
@@ -256,12 +237,6 @@ abstract class Repository
         return $this;
     }
 
-    /**
-     * @param $resourceId
-     *
-     * @return mixed
-     * @throws NotFoundException
-     */
     private function getCollectionById($resourceId)
     {
         return $this->getModel()->idOrUuId($resourceId);
