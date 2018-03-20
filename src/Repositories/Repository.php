@@ -203,7 +203,7 @@ abstract class Repository
         $this->model = $model;
     }
 
-    private function saveModel(Definition $definition)
+    protected function saveModel(Definition $definition)
     {
         $definition->validate();
 
@@ -237,7 +237,7 @@ abstract class Repository
         return $this;
     }
 
-    private function getCollectionById($resourceId)
+    protected function getCollectionById($resourceId)
     {
         return $this->getModel()->idOrUuId($resourceId);
     }
