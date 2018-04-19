@@ -69,7 +69,7 @@ abstract class Search extends Repository
             $this->addMinSearch($query, self::OR_SEARCH);
             $this->addMaxSearch($query, self::OR_SEARCH);
 
-            $query = $query->where(function ($query) use ($search) {
+            $query = $query->orWhere(function ($query) use ($search) {
                 foreach ($search as $column => $value) {
                     $query = $query->orWhere($column, 'LIKE', "%$value%");
                 }
