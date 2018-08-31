@@ -72,13 +72,21 @@ abstract class Search extends Repository
             if (empty($filters) === true) {
                 $query = $query->orWhere(function ($query) use ($search) {
                     foreach ($search as $column => $value) {
-                        $query = $query->orWhere($column, 'LIKE', "%$value%");
+                        if (is_array($value) === true) {
+                            $query = $query->orWhereIn($column, 'LIKE', "%$value%");
+                        } else {
+                            $query = $query->orWhere($column, 'LIKE', "%$value%");
+                        }
                     }
                 });
             } else {
                 $query = $query->where(function ($query) use ($search) {
                     foreach ($search as $column => $value) {
-                        $query = $query->orWhere($column, 'LIKE', "%$value%");
+                        if (is_array($value) === true) {
+                            $query = $query->orWhereIn($column, 'LIKE', "%$value%");
+                        } else {
+                            $query = $query->orWhere($column, 'LIKE', "%$value%");
+                        }
                     }
                 });
             }
