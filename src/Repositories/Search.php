@@ -73,7 +73,7 @@ abstract class Search extends Repository
                 $query = $query->orWhere(function ($query) use ($search) {
                     foreach ($search as $column => $value) {
                         if (is_array($value) === true) {
-                            $query = $query->orWhereIn($column, 'LIKE', "%$value%");
+                            $query = $query->orWhereIn($column, 'LIKE', $value);
                         } else {
                             $query = $query->orWhere($column, 'LIKE', "%$value%");
                         }
@@ -83,7 +83,7 @@ abstract class Search extends Repository
                 $query = $query->where(function ($query) use ($search) {
                     foreach ($search as $column => $value) {
                         if (is_array($value) === true) {
-                            $query = $query->orWhereIn($column, 'LIKE', "%$value%");
+                            $query = $query->orWhereIn($column, $value);
                         } else {
                             $query = $query->orWhere($column, 'LIKE', "%$value%");
                         }
