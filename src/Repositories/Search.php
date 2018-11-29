@@ -218,40 +218,32 @@ abstract class Search extends Repository
 
     public function setStartDate($date)
     {
-        if (empty($date) == false) {
-            $timestamp       = strtotime($date);
-            $this->startDate = Carbon::createFromTimestamp($timestamp)->toDateString();
-        }
+        $timestamp       = strtotime($date);
+        $this->startDate = Carbon::createFromTimestamp($timestamp)->toDateString();
 
         return $this;
     }
 
     public function setStartDateInverted($date)
     {
-        if (empty($date) == false) {
-            $timestamp               = strtotime($date);
-            $this->startDateInverted = Carbon::createFromTimestamp($timestamp)->toDateString();
-        }
+        $timestamp               = strtotime($date);
+        $this->startDateInverted = Carbon::createFromTimestamp($timestamp)->toDateString();
 
         return $this;
     }
 
     public function setEndDate($date)
     {
-        if (empty($date) == false) {
-            $timestamp     = strtotime($date);
-            $this->endDate = Carbon::createFromTimestamp($timestamp)->toDateString();
-        }
+        $timestamp     = strtotime($date);
+        $this->endDate = Carbon::createFromTimestamp($timestamp)->toDateString();
 
         return $this;
     }
 
     public function setEndDateInverted($date)
     {
-        if (empty($date) == false) {
-            $timestamp             = strtotime($date);
-            $this->endDateInverted = Carbon::createFromTimestamp($timestamp)->toDateString();
-        }
+        $timestamp             = strtotime($date);
+        $this->endDateInverted = Carbon::createFromTimestamp($timestamp)->toDateString();
 
         return $this;
     }
