@@ -103,7 +103,7 @@ abstract class Search extends Repository
         }
     }
 
-    private function searchRelations(&$query)
+    protected function searchRelations(&$query)
     {
         if (empty($this->searchRelations) === false) {
             $query = $query->where(function ($query) {
@@ -123,7 +123,7 @@ abstract class Search extends Repository
         }
     }
 
-    private function searchOrRelations(&$query)
+    protected function searchOrRelations(&$query)
     {
         if (empty($this->searchRelations) === false) {
             $query = $query->orWhere(function ($query) {
@@ -150,7 +150,7 @@ abstract class Search extends Repository
         return $this;
     }
 
-    private function addDates(&$query, $searchType)
+    protected function addDates(&$query, $searchType)
     {
         if (empty($this->startDate) === false && empty($this->endDate) === false) {
             $query->where(function ($query) use ($searchType) {
@@ -168,7 +168,7 @@ abstract class Search extends Repository
         }
     }
 
-    private function addMaxSearch(&$query, $searchType)
+    protected function addMaxSearch(&$query, $searchType)
     {
         /**
          * @var $item MaxValueSearch
@@ -180,7 +180,7 @@ abstract class Search extends Repository
         });
     }
 
-    private function addMinSearch(&$query, $searchType)
+    protected function addMinSearch(&$query, $searchType)
     {
         /**
          * @var $item MinValueSearch
@@ -226,7 +226,7 @@ abstract class Search extends Repository
         return $this;
     }
 
-    private function addExactMatches(array $filters, &$query)
+    protected function addExactMatches(array $filters, &$query)
     {
         $query = $query->where(function ($query) use ($filters) {
             foreach ($filters as $column => $value) {
