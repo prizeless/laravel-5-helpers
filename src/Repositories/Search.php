@@ -17,6 +17,10 @@ abstract class Search extends Repository
 
     protected $endDate;
 
+    protected $startDateInverted;
+
+    protected $endDateInverted;
+
     protected $startDateField = 'created_at';
 
     protected $endDateField = 'created_at';
@@ -38,6 +42,7 @@ abstract class Search extends Repository
             $this->searchRelations($query);
             $this->addExactMatches($filters, $query);
             $this->addDates($query, self::AND_SEARCH);
+            $this->addDatesInverted($query, self::AND_SEARCH);
             $this->addMinSearch($query, self::AND_SEARCH);
             $this->addMaxSearch($query, self::AND_SEARCH);
 
@@ -66,6 +71,7 @@ abstract class Search extends Repository
             $this->searchOrRelations($query);
             $this->addExactMatches($filters, $query);
             $this->addDates($query, self::OR_SEARCH);
+            $this->addDatesInverted($query, self::OR_SEARCH);
             $this->addMinSearch($query, self::OR_SEARCH);
             $this->addMaxSearch($query, self::OR_SEARCH);
 
@@ -168,6 +174,24 @@ abstract class Search extends Repository
         }
     }
 
+    protected function addDatesInverted(&$query, $searchType)
+    {
+        if (empty($this->startDateInverted) === false && empty($this->endDateInverted) === false) {
+            $query->where(function ($query) use ($searchType) {
+                $query->{$searchType}($this->startDateField, '<=', $this->startDateInverted)
+                      ->{$searchType}($this->endDateField, '>=', $this->endDateInverted);
+            });
+        }
+
+        if (empty($this->startDateInverted) === true && empty($this->endDateInverted) === false) {
+            $query->{$searchType}($this->endDateField, '>=', $this->endDateInverted);
+        }
+
+        if (empty($this->startDateInverted) === false && empty($this->endDateInverted) === true) {
+            $query->{$searchType}($this->startDateField, '<=', $this->startDateInverted);
+        }
+    }
+
     protected function addMaxSearch(&$query, $searchType)
     {
         /**
@@ -202,11 +226,31 @@ abstract class Search extends Repository
         return $this;
     }
 
+    public function setStartDateInverted($date)
+    {
+        if (empty($date) == false) {
+            $timestamp               = strtotime($date);
+            $this->startDateInverted = Carbon::createFromTimestamp($timestamp)->toDateString();
+        }
+
+        return $this;
+    }
+
     public function setEndDate($date)
     {
         if (empty($date) == false) {
             $timestamp     = strtotime($date);
             $this->endDate = Carbon::createFromTimestamp($timestamp)->toDateString();
+        }
+
+        return $this;
+    }
+
+    public function setEndDateInverted($date)
+    {
+        if (empty($date) == false) {
+            $timestamp             = strtotime($date);
+            $this->endDateInverted = Carbon::createFromTimestamp($timestamp)->toDateString();
         }
 
         return $this;
