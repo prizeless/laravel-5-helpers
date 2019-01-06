@@ -160,8 +160,8 @@ abstract class Search extends Repository
     {
         if (empty($this->startDate) === false && empty($this->endDate) === false) {
             $query->where(function ($query) use ($searchType) {
-                $query->{$searchType}($this->startDateField, '>=', $this->startDate)
-                      ->{$searchType}($this->endDateField, '<=', $this->endDate);
+                $query->where($this->startDateField, '>=', $this->startDate)
+                      ->where($this->endDateField, '<=', $this->endDate);
             });
         }
 
@@ -178,8 +178,8 @@ abstract class Search extends Repository
     {
         if (empty($this->startDateInverted) === false && empty($this->endDateInverted) === false) {
             $query->where(function ($query) use ($searchType) {
-                $query->{$searchType}($this->startDateField, '<=', $this->startDateInverted)
-                      ->{$searchType}($this->endDateField, '>=', $this->endDateInverted);
+                $query->where($this->startDateField, '<=', $this->startDateInverted)
+                      ->where($this->endDateField, '>=', $this->endDateInverted);
             });
         }
 
