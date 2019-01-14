@@ -267,7 +267,7 @@ abstract class Search extends Repository
         $query = $query->where(function ($query) use ($filters) {
             foreach ($filters as $column => $value) {
                 if (is_array($value)) {
-                    $this->whereIn($column, $value);
+                    $query->whereIn($column, $value);
                 } else {
                     $query->where($column, $value);
                 }
