@@ -114,7 +114,7 @@ abstract class Repository
     /**
      * @param $record
      */
-    private function deleteRecord($record)
+    protected function deleteRecord($record)
     {
         if (empty($record) === false && $record->count() > 0) {
             $record->delete();
@@ -126,7 +126,7 @@ abstract class Repository
      *
      * @param $resource
      */
-    private function deleteRelatedRecords($resource)
+    protected function deleteRelatedRecords($resource)
     {
         if (empty($this->relations) === false) {
             foreach ($this->relations as $relation) {
@@ -135,7 +135,7 @@ abstract class Repository
         }
     }
 
-    private function tryDeleteRelations($resource, $relation)
+    protected function tryDeleteRelations($resource, $relation)
     {
         $collection = '\Illuminate\Database\Eloquent\Collection';
         if ($resource->{$relation} instanceof $collection) {
@@ -147,7 +147,7 @@ abstract class Repository
         }
     }
 
-    private function editModel(Definition $definition, $resourceId)
+    protected function editModel(Definition $definition, $resourceId)
     {
         $definition->validate();
         $collection = $this->getCollectionById($resourceId);
