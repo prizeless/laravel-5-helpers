@@ -8,7 +8,6 @@ use Laravel5Helpers\Exceptions\ResourceDeleteError;
 use Laravel5Helpers\Exceptions\ResourceGetError;
 use Laravel5Helpers\Exceptions\ResourceSaveError;
 use Laravel5Helpers\Exceptions\ResourceUpdateError;
-use Laravel5Helpers\Exceptions\ValidationError;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Laravel5Helpers\Definitions\Definition;
@@ -19,6 +18,8 @@ abstract class Repository
     protected $model;
 
     protected $relations = [];
+
+    protected $relationCounts = [];
 
     protected $pageSize = 15;
 
@@ -54,6 +55,10 @@ abstract class Repository
         try {
             $query = $this->getModel();
 
+            if (empty($this->relationCounts) === false) {
+                $query = $query->withCount($this->relationCounts);
+            }
+
             if (empty($this->order) === false) {
                 return $query->orderBy($this->order->field, $this->order->direction)->paginate($this->pageSize);
             }
@@ -64,6 +69,13 @@ abstract class Repository
         } catch (\PDOException $exception) {
             throw new ResourceGetError($this->getModelShortName());
         }
+    }
+
+    public function addRelationCount($count)
+    {
+        $this->relationCounts[] = $count;
+
+        return $this;
     }
 
 
@@ -79,11 +91,11 @@ abstract class Repository
     {
         try {
             return $this->editModel($definition, $resourceId);
-        } catch (\PDOException $exception) {
-            throw new ResourceUpdateError($this->getModelShortName());
-        } catch (QueryException $exception) {
-            throw new ResourceUpdateError($this->getModelShortName());
         } catch (ModelNotFoundException $exception) {
+            throw new NotFoundException($this->getModelShortName());
+        } catch (QueryException $exception) {
+            throw new NotFoundException($this->getModelShortName());
+        } catch (\PDOException $exception) {
             throw new NotFoundException($this->getModelShortName());
         }
     }
@@ -102,11 +114,11 @@ abstract class Repository
             $this->deleteRelatedRecords($collection);
 
             return $collection->delete();
-        } catch (\PDOException $exception) {
-            throw new ResourceDeleteError($this->getModelShortName());
-        } catch (QueryException $exception) {
-            throw new ResourceDeleteError($this->getModelShortName());
         } catch (ModelNotFoundException $exception) {
+            throw new NotFoundException($this->getModelShortName());
+        } catch (QueryException $exception) {
+            throw new NotFoundException($this->getModelShortName());
+        } catch (\PDOException $exception) {
             throw new NotFoundException($this->getModelShortName());
         }
     }
@@ -221,11 +233,17 @@ abstract class Repository
 
     protected function getRelations()
     {
+        $model = $this->getModel();
+
         if (empty($this->relations) === false) {
-            return $this->getModel()->with($this->relations);
+            $model = $model->with($this->relations);
         }
 
-        return $this->getModel();
+        if (empty($this->relationCounts) === false) {
+            $model = $model->withCount($this->relationCounts);
+        }
+
+        return $model;
     }
 
     public function addRelations(array $relations)
