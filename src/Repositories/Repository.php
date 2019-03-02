@@ -94,9 +94,9 @@ abstract class Repository
         } catch (ModelNotFoundException $exception) {
             throw new NotFoundException($this->getModelShortName());
         } catch (QueryException $exception) {
-            throw new NotFoundException($this->getModelShortName());
+            throw new ResourceUpdateError($this->getModelShortName());
         } catch (\PDOException $exception) {
-            throw new NotFoundException($this->getModelShortName());
+            throw new ResourceUpdateError($this->getModelShortName());
         }
     }
 
@@ -117,9 +117,9 @@ abstract class Repository
         } catch (ModelNotFoundException $exception) {
             throw new NotFoundException($this->getModelShortName());
         } catch (QueryException $exception) {
-            throw new NotFoundException($this->getModelShortName());
+            throw new ResourceDeleteError($this->getModelShortName());
         } catch (\PDOException $exception) {
-            throw new NotFoundException($this->getModelShortName());
+            throw new ResourceDeleteError($this->getModelShortName());
         }
     }
 
@@ -187,9 +187,9 @@ abstract class Repository
         try {
             return $this->getModel()->idOrUuId($id);
         } catch (QueryException $exception) {
-            throw new NotFoundException($this->getModelShortName());
+            throw new ResourceGetError($this->getModelShortName());
         } catch (\PDOException $exception) {
-            throw new NotFoundException($this->getModelShortName());
+            throw new ResourceGetError($this->getModelShortName());
         }
     }
 
