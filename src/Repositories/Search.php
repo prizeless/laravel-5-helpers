@@ -86,7 +86,7 @@ abstract class Search extends Repository
                     }
                 });
             } else {
-                $query = $query->where(function ($query) use ($search) {
+                $query = $query->orWhere(function ($query) use ($search) {
                     foreach ($search as $column => $value) {
                         if (is_array($value) === true) {
                             $query = $query->orWhereIn($column, $value);
