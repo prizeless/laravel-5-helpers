@@ -25,7 +25,7 @@ abstract class Search extends Repository
 
     protected $endDateField = 'created_at';
 
-    private $searchRelations;
+    private $searchRelations = [];
 
     private $maxSearch = [];
 
