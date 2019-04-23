@@ -75,17 +75,8 @@ abstract class Search extends Repository
             $this->addMinSearch($query, self::OR_SEARCH);
             $this->addMaxSearch($query, self::OR_SEARCH);
 
+
             if (empty($filters) === true) {
-                $query = $query->orWhere(function ($query) use ($search) {
-                    foreach ($search as $column => $value) {
-                        if (is_array($value) === true) {
-                            $query = $query->orWhereIn($column, 'LIKE', $value);
-                        } else {
-                            $query = $query->orWhere($column, 'LIKE', "%$value%");
-                        }
-                    }
-                });
-            } else {
                 $query = $query->orWhere(function ($query) use ($search) {
                     foreach ($search as $column => $value) {
                         if (is_array($value) === true) {
@@ -95,8 +86,17 @@ abstract class Search extends Repository
                         }
                     }
                 });
+            } else {
+                $query = $query->where(function ($query) use ($search) {
+                    foreach ($search as $column => $value) {
+                        if (is_array($value) === true) {
+                            $query = $query->orWhereIn($column, $value);
+                        } else {
+                            $query = $query->orWhere($column, 'LIKE', "%$value%");
+                        }
+                    }
+                });
             }
-
             if (empty($this->order) === false) {
                 return $query->orderBy($this->order->field, $this->order->direction)->paginate($this->pageSize);
             }
@@ -131,22 +131,20 @@ abstract class Search extends Repository
 
     protected function searchOrRelations(&$query)
     {
-        if (empty($this->searchRelations) === false) {
-            $query = $query->where(function ($query) {
-                /**
-                 * @var  $relation RelationSearch
-                 */
-                foreach ($this->searchRelations as $relation) {
-                    $query = $query->orWhereHas($relation->relation, function ($query) use ($relation) {
-                        if (is_array($relation->value) === true) {
-                            $query->whereIn($relation->column, $relation->value);
-                        } else {
-                            $query->whereWildCard($relation->column, $relation->value);
-                        }
-                    });
-                }
-            });
-        }
+        $query = $query->where(function ($query) {
+            /**
+             * @var  $relation RelationSearch
+             */
+            foreach ($this->searchRelations as $relation) {
+                $query = $query->orWhereHas($relation->relation, function ($query) use ($relation) {
+                    if (is_array($relation->value) === true) {
+                        $query->whereIn($relation->column, $relation->value);
+                    } else {
+                        $query->whereWildCard($relation->column, $relation->value);
+                    }
+                });
+            }
+        });
     }
 
     public function addSearchRelations($relations)
