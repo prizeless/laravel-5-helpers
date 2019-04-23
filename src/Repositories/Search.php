@@ -132,7 +132,7 @@ abstract class Search extends Repository
     protected function searchOrRelations(&$query)
     {
         if (empty($this->searchRelations) === false) {
-            $query = $query->orWhere(function ($query) {
+            $query = $query->where(function ($query) {
                 /**
                  * @var  $relation RelationSearch
                  */
