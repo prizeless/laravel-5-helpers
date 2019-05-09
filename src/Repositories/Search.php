@@ -68,35 +68,13 @@ abstract class Search extends Repository
     {
         try {
             $query = $this->getRelations($relations);
-            $this->searchOrRelations($query);
+            $this->searchOrRelations($query, $search);
             $this->addExactMatches($filters, $query);
             $this->addDates($query, self::OR_SEARCH);
             $this->addDatesInverted($query, self::OR_SEARCH);
             $this->addMinSearch($query, self::OR_SEARCH);
             $this->addMaxSearch($query, self::OR_SEARCH);
 
-
-            if (empty($filters) === true) {
-                $query = $query->orWhere(function ($query) use ($search) {
-                    foreach ($search as $column => $value) {
-                        if (is_array($value) === true) {
-                            $query = $query->orWhereIn($column, $value);
-                        } else {
-                            $query = $query->orWhere($column, 'LIKE', "%$value%");
-                        }
-                    }
-                });
-            } else {
-                $query = $query->where(function ($query) use ($search) {
-                    foreach ($search as $column => $value) {
-                        if (is_array($value) === true) {
-                            $query = $query->orWhereIn($column, $value);
-                        } else {
-                            $query = $query->orWhere($column, 'LIKE', "%$value%");
-                        }
-                    }
-                });
-            }
             if (empty($this->order) === false) {
                 return $query->orderBy($this->order->field, $this->order->direction)->paginate($this->pageSize);
             }
@@ -129,9 +107,9 @@ abstract class Search extends Repository
         }
     }
 
-    protected function searchOrRelations(&$query)
+    protected function searchOrRelations(&$query, $search)
     {
-        $query = $query->where(function ($query) {
+        $query = $query->orWhere(function ($query) use ($search) {
             /**
              * @var  $relation RelationSearch
              */
@@ -143,6 +121,14 @@ abstract class Search extends Repository
                         $query->whereWildCard($relation->column, $relation->value);
                     }
                 });
+            }
+
+            foreach ($search as $column => $value) {
+                if (is_array($value) === true) {
+                    $query = $query->orWhereIn($column, $value);
+                } else {
+                    $query = $query->orWhere($column, 'LIKE', "%$value%");
+                }
             }
         });
     }
