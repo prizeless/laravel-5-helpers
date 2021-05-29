@@ -4,8 +4,8 @@ namespace Laravel5Helpers\Exceptions;
 
 class ResourceSaveError extends LaravelHelpersExceptions
 {
-    public function __construct($message = 'There was an error saving data.')
+    public function __construct($model)
     {
-        parent::__construct($message);
+        parent::__construct('Error savinf data for ' . $model);
     }
 }

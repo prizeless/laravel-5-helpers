@@ -2,6 +2,7 @@
 
 namespace Laravel5Helpers\Repositories;
 
+use PDOException;
 use function is_array;
 use Laravel5Helpers\Exceptions\ResourceGetError;
 use Carbon\Carbon;
@@ -57,9 +58,8 @@ abstract class Search extends Repository
             }
 
             return $query->paginate($this->pageSize);
-        } catch (\PDOException $exception) {
-            throw new ResourceGetError($this->getModelShortName());
-        } catch (QueryException $exception) {
+        } catch (PDOException $exception) {
+            $this->logException($exception->getMessage());
             throw new ResourceGetError($this->getModelShortName());
         }
     }
@@ -80,9 +80,8 @@ abstract class Search extends Repository
             }
 
             return $query->paginate($this->pageSize);
-        } catch (\PDOException $exception) {
-            throw new ResourceGetError($this->getModelShortName());
-        } catch (QueryException $exception) {
+        } catch (QueryException | PDOException $exception) {
+            $this->logException($exception->getMessage());
             throw new ResourceGetError($this->getModelShortName());
         }
     }

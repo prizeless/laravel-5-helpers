@@ -11,23 +11,18 @@ use Laravel5Helpers\Exceptions\ResourceUpdateError;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Laravel5Helpers\Definitions\Definition;
+use PDOException;
+use ReflectionClass;
 use const null;
 
 abstract class Repository
 {
-    protected $model;
-
-    protected $relations = [];
-
-    protected $relationCounts = [];
-
-    protected $pageSize = 15;
-
-    protected $order = null;
-
     const ORDER_ASC = 'ASC';
-
-    const ORDER_DESC = 'DESC';
+    protected $model;
+    protected $relations = [];
+    protected $relationCounts = [];
+    protected $pageSize = 15;
+    protected $order = null;
 
     /**
      * @param Definition $definition
@@ -39,11 +34,33 @@ abstract class Repository
     {
         try {
             return $this->saveModel($definition);
-        } catch (QueryException $exception) {
-            throw new ResourceSaveError;
-        } catch (\PDOException $exception) {
-            throw new ResourceSaveError;
+        } catch (QueryException | PDOException $exception) {
+            $this->logException($exception->getMessage());
+            throw new ResourceSaveError($this->getModelShortName());
         }
+    }
+
+    protected function saveModel(Definition $definition)
+    {
+        $definition->validate();
+
+        $fields = $definition->valuesToArray();
+        $model  = $this->getModel();
+
+        foreach ($fields as $column => $value) {
+            $model->{$column} = $value;
+        }
+
+        $model->save();
+
+        return $model;
+    }
+
+    abstract protected function getModel();
+
+    public function setModel($model)
+    {
+        $this->model = $model;
     }
 
     /**
@@ -64,11 +81,15 @@ abstract class Repository
             }
 
             return $query->paginate($this->pageSize);
-        } catch (QueryException $exception) {
-            throw new ResourceGetError($this->getModelShortName());
-        } catch (\PDOException $exception) {
+        } catch (QueryException | PDOException $exception) {
+            $this->logException($exception->getMessage());
             throw new ResourceGetError($this->getModelShortName());
         }
+    }
+
+    protected function getModelShortName()
+    {
+        return (new ReflectionClass($this->getModel()))->getShortName();
     }
 
     public function addRelationCount($count)
@@ -77,7 +98,6 @@ abstract class Repository
 
         return $this;
     }
-
 
     /**
      * @param Definition $definition
@@ -91,13 +111,29 @@ abstract class Repository
     {
         try {
             return $this->editModel($definition, $resourceId);
-        } catch (ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException | QueryException | PDOException $exception) {
+            $this->logException($exception->getMessage());
             throw new NotFoundException($this->getModelShortName());
-        } catch (QueryException $exception) {
-            throw new ResourceUpdateError($this->getModelShortName());
-        } catch (\PDOException $exception) {
-            throw new ResourceUpdateError($this->getModelShortName());
         }
+    }
+
+    protected function editModel(Definition $definition, $resourceId)
+    {
+        $definition->validate();
+        $collection = $this->getCollectionById($resourceId);
+
+        $fields = $definition->valuesToArray();
+        foreach ($fields as $column => $value) {
+            $collection->{$column} = $value;
+        }
+        $collection->save();
+
+        return $collection;
+    }
+
+    protected function getCollectionById($resourceId)
+    {
+        return $this->getModel()->idOrUuId($resourceId);
     }
 
     /**
@@ -114,22 +150,9 @@ abstract class Repository
             $this->deleteRelatedRecords($collection);
 
             return $collection->delete();
-        } catch (ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException | QueryException | PDOException $exception) {
+            $this->logException($exception->getMessage());
             throw new NotFoundException($this->getModelShortName());
-        } catch (QueryException $exception) {
-            throw new ResourceDeleteError($this->getModelShortName());
-        } catch (\PDOException $exception) {
-            throw new ResourceDeleteError($this->getModelShortName());
-        }
-    }
-
-    /**
-     * @param $record
-     */
-    protected function deleteRecord($record)
-    {
-        if (empty($record) === false && $record->count() > 0) {
-            $record->delete();
         }
     }
 
@@ -159,25 +182,22 @@ abstract class Repository
         }
     }
 
-    protected function editModel(Definition $definition, $resourceId)
+    /**
+     * @param $record
+     */
+    protected function deleteRecord($record)
     {
-        $definition->validate();
-        $collection = $this->getCollectionById($resourceId);
-
-        $fields = $definition->valuesToArray();
-        foreach ($fields as $column => $value) {
-            $collection->{$column} = $value;
+        if (empty($record) === false && $record->count() > 0) {
+            $record->delete();
         }
-        $collection->save();
-
-        return $collection;
     }
 
     public function mustExist($id)
     {
         try {
             return $this->getModel()->findOrFail($id);
-        } catch (ModelNotFoundException $exception) {
+        } catch (ModelNotFoundException | QueryException | PDOException $exception) {
+            $this->logException($exception->getMessage());
             throw new NotFoundException($this->getModelShortName());
         }
     }
@@ -186,49 +206,46 @@ abstract class Repository
     {
         try {
             return $this->getModel()->idOrUuId($id);
-        } catch (QueryException $exception) {
-            throw new ResourceGetError($this->getModelShortName());
-        } catch (\PDOException $exception) {
+        } catch (QueryException | PDOException $exception) {
+            $this->logException($exception->getMessage());
             throw new ResourceGetError($this->getModelShortName());
         }
+    }
+
+    public function addRelations(array $relations)
+    {
+        if (empty($relations) === false) {
+            $this->relations = $relations;
+        }
+
+        return $this;
+    }
+
+    public function setResultOrder($field, $direction = self::ORDER_ASC)
+    {
+        $this->order = new ResultOrder($field, $direction);
+
+        return $this;
     }
 
     protected function findByAttributes(array $attributes)
     {
-        $model = $this->getModel();
-        foreach ($attributes as $column => $value) {
-            $model = $model->where($column, $value);
+        try {
+            $model = $this->getModel();
+            foreach ($attributes as $column => $value) {
+                $model = $model->where($column, $value);
+            }
+            $result = $model->first();
+
+            if (empty($result)) {
+                throw new NotFoundException($this->getModelShortName());
+            }
+
+            return $result;
+        } catch (QueryException | PDOException $exception) {
+            $this->logException($exception->getMessage());
+            throw new ResourceGetError($this->getModelShortName());
         }
-        $result = $model->first();
-
-        if (empty($result)) {
-            throw new NotFoundException($this->getModelShortName());
-        }
-
-        return $result;
-    }
-
-    abstract protected function getModel();
-
-    public function setModel($model)
-    {
-        $this->model = $model;
-    }
-
-    protected function saveModel(Definition $definition)
-    {
-        $definition->validate();
-
-        $fields = $definition->valuesToArray();
-        $model  = $this->getModel();
-
-        foreach ($fields as $column => $value) {
-            $model->{$column} = $value;
-        }
-
-        $model->save();
-
-        return $model;
     }
 
     protected function getRelations()
@@ -246,29 +263,8 @@ abstract class Repository
         return $model;
     }
 
-    public function addRelations(array $relations)
+    protected function logException($error)
     {
-        if (empty($relations) === false) {
-            $this->relations = $relations;
-        }
 
-        return $this;
-    }
-
-    protected function getCollectionById($resourceId)
-    {
-        return $this->getModel()->idOrUuId($resourceId);
-    }
-
-    protected function getModelShortName()
-    {
-        return (new \ReflectionClass($this->getModel()))->getShortName();
-    }
-
-    public function setResultOrder($field, $direction = self::ORDER_ASC)
-    {
-        $this->order = new ResultOrder($field, $direction);
-
-        return $this;
     }
 }
