@@ -6,6 +6,6 @@ class ResourceSaveError extends LaravelHelpersExceptions
 {
     public function __construct($model)
     {
-        parent::__construct('Error savinf data for ' . $model);
+        parent::__construct('Error saving data for ' . $model);
     }
 }
