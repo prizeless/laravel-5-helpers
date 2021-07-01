@@ -11,6 +11,7 @@ use Laravel5Helpers\Exceptions\ResourceUpdateError;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Laravel5Helpers\Definitions\Definition;
+use Laravel5Helpers\Log;
 use PDOException;
 use ReflectionClass;
 use const null;
@@ -265,6 +266,6 @@ abstract class Repository
 
     protected function logException($error)
     {
-
+        Log::logError($this, $error);
     }
 }
