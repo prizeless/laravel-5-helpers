@@ -32,20 +32,16 @@ abstract class Search extends Repository
 
     private $minSearch = [];
 
-    const OR_SEARCH = 'orWhere';
-
-    const AND_SEARCH = 'where';
-
     public function wildCardSearch(array $filters, array $search = [], array $relations = [])
     {
         try {
-            $query = $this->getRelations($relations);
+            $query = $this->getRelations();
             $this->searchRelations($query);
             $this->addExactMatches($filters, $query);
-            $this->addDates($query, self::AND_SEARCH);
-            $this->addDatesInverted($query, self::AND_SEARCH);
-            $this->addMinSearch($query, self::AND_SEARCH);
-            $this->addMaxSearch($query, self::AND_SEARCH);
+            $this->addDates($query);
+            $this->addDatesInverted($query);
+            $this->addMinSearch($query);
+            $this->addMaxSearch($query);
 
             $query = $query->where(function ($query) use ($search) {
                 foreach ($search as $column => $value) {
@@ -58,7 +54,7 @@ abstract class Search extends Repository
             }
 
             return $query->paginate($this->pageSize);
-        } catch (PDOException $exception) {
+        } catch (QueryException | PDOException $exception) {
             $this->logException($exception->getMessage());
             throw new ResourceGetError($this->getModelShortName());
         }
@@ -67,13 +63,13 @@ abstract class Search extends Repository
     public function wildCardOrSearch(array $filters, array $search = [], array $relations = [])
     {
         try {
-            $query = $this->getRelations($relations);
+            $query = $this->getRelations();
             $this->searchOrRelations($query, $search);
             $this->addExactMatches($filters, $query);
-            $this->addDates($query, self::OR_SEARCH);
-            $this->addDatesInverted($query, self::OR_SEARCH);
-            $this->addMinSearch($query, self::OR_SEARCH);
-            $this->addMaxSearch($query, self::OR_SEARCH);
+            $this->addDates($query);
+            $this->addDatesInverted($query);
+            $this->addMinSearch($query);
+            $this->addMaxSearch($query);
 
             if (empty($this->order) === false) {
                 return $query->orderBy($this->order->field, $this->order->direction)->paginate($this->pageSize);
@@ -139,62 +135,62 @@ abstract class Search extends Repository
         return $this;
     }
 
-    protected function addDates(&$query, $searchType)
+    protected function addDates(&$query)
     {
         if (empty($this->startDate) === false && empty($this->endDate) === false) {
-            $query->where(function ($query) use ($searchType) {
+            $query->where(function ($query) {
                 $query->where($this->startDateField, '>=', $this->startDate)
                       ->where($this->endDateField, '<=', $this->endDate);
             });
         }
 
         if (empty($this->startDate) === true && empty($this->endDate) === false) {
-            $query->{$searchType}($this->endDateField, '<=', $this->endDate);
+            $query->where($this->endDateField, '<=', $this->endDate);
         }
 
         if (empty($this->startDate) === false && empty($this->endDate) === true) {
-            $query->{$searchType}($this->startDateField, '>=', $this->startDate);
+            $query->where($this->startDateField, '>=', $this->startDate);
         }
     }
 
-    protected function addDatesInverted(&$query, $searchType)
+    protected function addDatesInverted(&$query)
     {
         if (empty($this->startDateInverted) === false && empty($this->endDateInverted) === false) {
-            $query->where(function ($query) use ($searchType) {
+            $query->where(function ($query) {
                 $query->where($this->startDateField, '<=', $this->startDateInverted)
                       ->where($this->endDateField, '>=', $this->endDateInverted);
             });
         }
 
         if (empty($this->startDateInverted) === true && empty($this->endDateInverted) === false) {
-            $query->{$searchType}($this->endDateField, '>=', $this->endDateInverted);
+            $query->where($this->endDateField, '>=', $this->endDateInverted);
         }
 
         if (empty($this->startDateInverted) === false && empty($this->endDateInverted) === true) {
-            $query->{$searchType}($this->startDateField, '<=', $this->startDateInverted);
+            $query->where($this->startDateField, '<=', $this->startDateInverted);
         }
     }
 
-    protected function addMaxSearch(&$query, $searchType)
+    protected function addMaxSearch(&$query)
     {
         /**
          * @var $item MaxValueSearch
          */
-        $query->where(function ($query) use ($searchType) {
+        $query->where(function ($query) {
             foreach ($this->maxSearch as $item) {
-                $query->{$searchType}($item->fieldName, '<=', $item->maxValue);
+                $query->where($item->fieldName, '<=', $item->maxValue);
             }
         });
     }
 
-    protected function addMinSearch(&$query, $searchType)
+    protected function addMinSearch(&$query)
     {
         /**
          * @var $item MinValueSearch
          */
-        $query->where(function ($query) use ($searchType) {
+        $query->where(function ($query) {
             foreach ($this->minSearch as $item) {
-                $query->{$searchType}($item->fieldName, '>=', $item->minValue);
+                $query->where($item->fieldName, '>=', $item->minValue);
             }
         });
     }
