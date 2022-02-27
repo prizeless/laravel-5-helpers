@@ -253,10 +253,6 @@ abstract class Repository
     {
         $model = $this->getModel();
 
-        if (empty($this->relations) === false) {
-            $model = $model->with($this->relations);
-        }
-
         if (empty($this->relationCounts) === false) {
             $model = $model->withCount($this->relationCounts);
         }
