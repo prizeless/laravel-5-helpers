@@ -21,6 +21,7 @@ abstract class Repository
     const ORDER_ASC = 'ASC';
     protected $model;
     protected $relations = [];
+    protected $resultRelations = [];
     protected $relationCounts = [];
     protected $pageSize = 15;
     protected $order = null;
@@ -213,13 +214,18 @@ abstract class Repository
         }
     }
 
+    /**
+     * @param array $relations
+     * @deprecated Use addResultRelations
+     */
     public function addRelations(array $relations)
     {
-        if (empty($relations) === false) {
-            $this->relations = $relations;
-        }
+        $this->resultRelations[] = $relations;
+    }
 
-        return $this;
+    public function addResultRelations(array $relations)
+    {
+        $this->resultRelations[] = $relations;
     }
 
     public function setResultOrder($field, $direction = self::ORDER_ASC)
@@ -255,6 +261,10 @@ abstract class Repository
 
         if (empty($this->relationCounts) === false) {
             $model = $model->withCount($this->relationCounts);
+        }
+
+        if (empty($this->resultRelations) === false) {
+            $model = $model->with($this->resultRelations);
         }
 
         return $model;
