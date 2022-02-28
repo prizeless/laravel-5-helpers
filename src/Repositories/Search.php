@@ -32,7 +32,7 @@ abstract class Search extends Repository
 
     private $minSearch = [];
 
-    public function wildCardSearch(array $filters, array $search = [], array $relations = [])
+    public function wildCardSearch(array $filters, array $search = [])
     {
         try {
             $query = $this->getRelations();
@@ -55,12 +55,12 @@ abstract class Search extends Repository
 
             return $query->paginate($this->pageSize);
         } catch (QueryException | PDOException $exception) {
-            $this->logException($exception->getMessage());
+            $this->logException($exception);
             throw new ResourceGetError($this->getModelShortName());
         }
     }
 
-    public function wildCardOrSearch(array $filters, array $search = [], array $relations = [])
+    public function wildCardOrSearch(array $filters, array $search = [])
     {
         try {
             $query = $this->getRelations();
@@ -77,7 +77,7 @@ abstract class Search extends Repository
 
             return $query->paginate($this->pageSize);
         } catch (QueryException | PDOException $exception) {
-            $this->logException($exception->getMessage());
+            $this->logException($exception);
             throw new ResourceGetError($this->getModelShortName());
         }
     }

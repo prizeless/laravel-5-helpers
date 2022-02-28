@@ -2,6 +2,7 @@
 
 namespace Laravel5Helpers\Repositories;
 
+use Exception;
 use Laravel5Helpers\Definitions\ResultOrder;
 use Laravel5Helpers\Exceptions\NotFoundException;
 use Laravel5Helpers\Exceptions\ResourceDeleteError;
@@ -37,7 +38,7 @@ abstract class Repository
         try {
             return $this->saveModel($definition);
         } catch (QueryException | PDOException $exception) {
-            $this->logException($exception->getMessage());
+            $this->logException($exception);
             throw new ResourceSaveError($this->getModelShortName());
         }
     }
@@ -84,7 +85,7 @@ abstract class Repository
 
             return $query->paginate($this->pageSize);
         } catch (QueryException | PDOException $exception) {
-            $this->logException($exception->getMessage());
+            $this->logException($exception);
             throw new ResourceGetError($this->getModelShortName());
         }
     }
@@ -114,7 +115,7 @@ abstract class Repository
         try {
             return $this->editModel($definition, $resourceId);
         } catch (ModelNotFoundException | QueryException | PDOException $exception) {
-            $this->logException($exception->getMessage());
+            $this->logException($exception);
             throw new NotFoundException($this->getModelShortName());
         }
     }
@@ -153,7 +154,7 @@ abstract class Repository
 
             return $collection->delete();
         } catch (ModelNotFoundException | QueryException | PDOException $exception) {
-            $this->logException($exception->getMessage());
+            $this->logException($exception);
             throw new NotFoundException($this->getModelShortName());
         }
     }
@@ -199,7 +200,7 @@ abstract class Repository
         try {
             return $this->getModel()->findOrFail($id);
         } catch (ModelNotFoundException | QueryException | PDOException $exception) {
-            $this->logException($exception->getMessage());
+            $this->logException($exception);
             throw new NotFoundException($this->getModelShortName());
         }
     }
@@ -209,13 +210,14 @@ abstract class Repository
         try {
             return $this->getModel()->idOrUuId($id);
         } catch (QueryException | PDOException $exception) {
-            $this->logException($exception->getMessage());
+            $this->logException($exception);
             throw new ResourceGetError($this->getModelShortName());
         }
     }
 
     /**
      * @param array $relations
+     *
      * @deprecated Use addResultRelations
      */
     public function addRelations(array $relations)
@@ -250,7 +252,7 @@ abstract class Repository
 
             return $result;
         } catch (QueryException | PDOException $exception) {
-            $this->logException($exception->getMessage());
+            $this->logException($exception);
             throw new ResourceGetError($this->getModelShortName());
         }
     }
@@ -270,8 +272,8 @@ abstract class Repository
         return $model;
     }
 
-    protected function logException($error)
+    protected function logException(Exception $exception)
     {
-        Log::logError($this, $error);
+        Log::logError($this, $exception);
     }
 }
