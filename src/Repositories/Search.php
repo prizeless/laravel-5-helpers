@@ -2,6 +2,7 @@
 
 namespace Laravel5Helpers\Repositories;
 
+use Illuminate\Support\Str;
 use PDOException;
 use function is_array;
 use Laravel5Helpers\Exceptions\ResourceGetError;
@@ -95,7 +96,16 @@ abstract class Search extends Repository
                             $query->whereIn($relation->column, $relation->value);
                         } else {
                             if ($relation->operator == '=') {
-                                $query->like($relation->column, $relation->value);
+                                if (empty($relation->value) === true && Str::length($relation->value) == 0) {
+                                    $query->whereNull($relation->column);
+                                } else {
+                                    $query->like($relation->column, $relation->value);
+                                }
+                            } elseif (empty($relation->value) === true
+                                      && Str::length($relation->value) == 0
+                                      && ($relation->operator == '!=' || $relation->operator == '<>')
+                            ) {
+                                $query->whereNotNull($relation->column);
                             } else {
                                 $query->where($relation->column, $relation->operator, $relation->value);
                             }
@@ -118,7 +128,11 @@ abstract class Search extends Repository
                         $query->whereIn($relation->column, $relation->value);
                     } else {
                         if ($relation->operator == '=') {
-                            $query->whereWildCard($relation->column, $relation->value);
+                            if (empty($relation->value) === true && Str::length($relation->value) == 0) {
+                                $query->whereNull($relation->column);
+                            } else {
+                                $query->whereWildCard($relation->column, $relation->value);
+                            }
                         } else {
                             $query->where($relation->column, $relation->operator, $relation->value);
                         }
